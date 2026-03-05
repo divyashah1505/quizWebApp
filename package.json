@@ -1,0 +1,27 @@
+{
+  "name": "quizapp",
+  "version": "1.0.0",
+  "description": "",
+  "main": "src/app.js",
+  "scripts": {
+    "start": "node src/App.js",
+    "dev": "nodemon App.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "bcryptjs": "^3.0.3",
+    "cors": "^2.8.6",
+    "express": "^5.2.1",
+    "jsonwebtoken": "^9.0.3",
+    "mongoose": "^9.2.4",
+    "multer": "^2.1.1",
+    "nodemailer": "^8.0.1",
+    "nodemon": "^3.1.14",
+    "redis": "^5.11.0",
+    "smtp": "^0.0.5",
+    "validatorjs": "^3.22.1"
+  }
+}
