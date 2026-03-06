@@ -21,5 +21,6 @@ module.exports = [
         controller: userController.login,
         isPublic: true
 
-    }
+    },
+   
 ]

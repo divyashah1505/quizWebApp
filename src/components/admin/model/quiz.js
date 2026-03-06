@@ -12,6 +12,10 @@ const quizSchema = new mongoose.Schema({
         type: Number,  //0 for easy 1 for meduim 2 for hard
         required: true
     },
+    totalquestion:{
+        type:Number,
+        default: 0
+    },
     maincategoryId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "category",

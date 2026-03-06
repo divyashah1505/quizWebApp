@@ -12,5 +12,13 @@ exports.appString = {
     CATEGORYFECTH: "Category Fetched Successfully",
     QUIZCREATEDSUCCESS: "Quiz Created Successfully",
     QUIZUPDATED: "Quiz Updated SuccessFully",
-    QUIZNOTFOUND:"Quiz Not Found "
+    QUIZNOTFOUND:"Quiz Not Found ",
+    QUESTIONCREATED:"Question Created Succesfully",
+    QUIZQUESTIONLIMIT: "This quiz already has the maximum of 10 questions.",
+    OPTIONWITHARRAYLIMITWITH4:"Options should be an array with at least four items.",
+    ONEOPTIONCORRECT: "You must mark exactly one option as correct.",
+    MULTIPLECOORECTANSWERNOTALLOWED: "Multiple correct answers are not allowed. Only one 'isCorrect: 1' allowed.",
+    TEXTASSTRINGISCOORECTASNUMBER:"Each option should have 'text' as string and 'isCorrect' as Number.",
+    QUESTIONNOTFOUND:"Question Not Found",
+    QUESTIONUPDATED:"Question updated successfully"
 };
