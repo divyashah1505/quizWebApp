@@ -87,17 +87,17 @@ updateQuestion: async (req, res) => {
         }
 
         // Validate options structure
-        if (!Array.isArray(options) || options.length < 2) {
+        if (!Array.isArray(options) || options.length < 4) {
             return res.status(400).json({
                 success: false,
-                error: "Options should be an array with at least two items.",
+                error: appString.OPTIONWITHARRAYLIMITWITH4,
             });
         }
 
         for (const option of options) {
             if (
                 typeof option.text !== "string" ||
-                typeof option.isCorrect !== "boolean"
+                typeof option.isCorrect !== "number"
             ) {
                 return res.status(400).json({
                     success: false,
@@ -128,7 +128,7 @@ updateQuestion: async (req, res) => {
         console.error("ERROR UPDATING QUESTION:", e.message);
         return res.status(500).json({
             success: false,
-            error: "Internal server error",
+            error: appString.SERVERERROR,
         });
     }
 }
