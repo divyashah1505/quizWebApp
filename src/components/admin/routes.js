@@ -3,6 +3,7 @@ const router = express.Router();
 const { routeArray } = require("../../middleware");
 const quizMangmentController = require("../admin/controller/quizManagementController")
 const adminController = require("./controller/adminLoginController");
+const quizController = require("../admin/controller/quizController")
 const routes = [
   {
     path: "/registeradmin",
@@ -42,6 +43,15 @@ const routes = [
     method: "put",
     controller: quizMangmentController.reactivateCategory,
   },
-
+  {
+    path:"/add-quiz",
+    method:"post",
+    controller:quizController.createQuiz
+  },
+  {
+    path:"/update-quiz/:id",
+    method:"put",
+    controller:quizController.updateQuiz
+  }
 ]
 module.exports = routeArray(routes, router, true);
