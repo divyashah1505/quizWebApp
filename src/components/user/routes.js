@@ -1,4 +1,5 @@
 const userController = require("../user/controller/userController");
+const withdrawController = require("../user/controller/withdrawRequestController")
 const { handleRefreshToken } = require("../../components/utils/commonUtils");
 const { appString } = require("../../../src/components/utils/appString")
 const quizController = require("../user/controller/quizController")
@@ -32,6 +33,11 @@ module.exports = [
         path:"/quiz/Submit",
         method:"post",
         controller:quizController.submitQuiz
+    },
+    {
+        path:"/withdraw/request",
+        method:"post",
+        controller:withdrawController.createWithDrawRequest
     }
    
 ]

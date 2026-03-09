@@ -4,7 +4,7 @@ const { appString } = require("../../utils/appString");
 const QuizAttempt = require("../models/quizAttepmt");
 const User = require("../models/user");
 const user = require("../models/user");
-const {calculateQuestionPoints,updateUserStreak} = require("../../utils/commonUtils")
+const { calculateQuestionPoints, updateUserStreak } = require("../../utils/commonUtils")
 const quizController = {
     getQuizByLevel: async (req, res) => {
         try {
@@ -87,23 +87,10 @@ const quizController = {
                         score++;
                         isCorrect = 1;
 
-                        let basePoints = 0;
-
-                        if (quiz.difficultyLevel == 0) basePoints = 10;
-                        if (quiz.difficultyLevel == 1) basePoints = 30;
-                        if (quiz.difficultyLevel == 2) basePoints = 50;
-
-                        questionPoints = basePoints;
-
-                        if (userAnswer.timeTaken >= 10 && userAnswer.timeTaken <= 20) {
-                            questionPoints = basePoints;
-                        }
-                        else if (userAnswer.timeTaken > 20 && userAnswer.timeTaken <= 50) {
-                            questionPoints = basePoints * 0.5;
-                        }
-                        else if (userAnswer.timeTaken > 50) {
-                            questionPoints = basePoints * 0.3;
-                        }
+                        questionPoints = calculateQuestionPoints(
+                            quiz.difficultyLevel,
+                            userAnswer.timeTaken
+                        );
 
                         totalPoints += questionPoints;
                     }
@@ -127,40 +114,13 @@ const quizController = {
                 score
             });
 
-          
             const user = await User.findById(userId);
 
-            const today = new Date();
-            today.setHours(0, 0, 0, 0);
+            const streakData = updateUserStreak(user);
 
-            let streakBonus = 0;
+            const streakBonus = streakData.streakBonus;
 
-            if (user.lastActiveDate) {
-
-                const lastDate = new Date(user.lastActiveDate);
-                lastDate.setHours(0, 0, 0, 0);
-
-                const diffTime = today - lastDate;
-                const diffDays = diffTime / (1000 * 60 * 60 * 24);
-
-                if (diffDays === 1) {
-                    user.streakCount += 1;
-                }
-                else if (diffDays > 1) {
-                    user.streakCount = 1;
-                }
-
-            } else {
-                user.streakCount = 1;
-            }
-
-            user.lastActiveDate = today;
-
-
-            if (user.streakCount % 5 === 0) {
-                streakBonus = 50;
-                totalPoints += streakBonus;
-            }
+            totalPoints += streakBonus;
 
             user.totalPoints += totalPoints;
 
@@ -173,6 +133,7 @@ const quizController = {
                 streakCount: user.streakCount,
                 streakBonus
             });
+
         } catch (error) {
 
             console.log(error);
@@ -183,8 +144,6 @@ const quizController = {
             });
         }
     }
-
-
 
 };
 module.exports = quizController
