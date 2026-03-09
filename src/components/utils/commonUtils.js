@@ -7,6 +7,11 @@ const config = require("../../../config/devlopment.json");
 const multer = require("multer");
 const path = require("path");
 const fs = require("fs");
+const cron = require("node-cron");
+const schedule = require('node-schedule');
+
+const withdrawalRequest = require("../user/models/withDrawRequest");
+const wallet = require("../user/models/wallet")
 const uploadDir = path.join(__dirname, "../../../uploads/IMG");
 if (!fs.existsSync(uploadDir)) {
   fs.mkdirSync(uploadDir, { recursive: true });
@@ -154,8 +159,33 @@ const updateUserStreak = (user) => {
   return { user, streakBonus };
 };
 
+const convertPointsToRupees = (points) => {
+  const rupees = (points / 100) * 10
+  return rupees
+}
+const cronwithDrawCron = () => {
+  cron.schedule("*/1****", async () => {
+    try {
+      const requests = await withdrawalRequest.find({
+        status: 0
+      })
+      for (const req of requests) {
+        let wallet = await wallet.findone({ userId: req.userId });
 
+        if (!wallet) {
+          wallet = await wallet.create({ userId: req.userId, balance: 0 });
+        }
+        wallet.balance += req.amount;
+        await wallet.save();
+        req.status = 1
+      }
+      console.log("withdra cron exectuted");
 
+    } catch (eror) {
+      console.log("withdraw cron error", error);
 
+    }
+  })
+}
 
-module.exports = { storeUserToken, removeUserToken, getActiveToken, generateTokens, handleRefreshToken, success, error, upload,calculateQuestionPoints,updateUserStreak }
+module.exports = { storeUserToken, removeUserToken, getActiveToken, generateTokens, handleRefreshToken, success, error, upload, calculateQuestionPoints, updateUserStreak, convertPointsToRupees, cronwithDrawCron }

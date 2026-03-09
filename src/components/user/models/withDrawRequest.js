@@ -10,6 +10,9 @@ const withDrawRequestSchema = new mongoose.Schema(
             type:Number,
             required:true
         },
+        amount:{
+            type:Number
+        },
         status:{
              type:Number  , // 0 for pending 1 for accept 2nd for rejcetd
             default:0

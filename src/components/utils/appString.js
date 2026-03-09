@@ -21,5 +21,7 @@ exports.appString = {
     TEXTASSTRINGISCOORECTASNUMBER:"Each option should have 'text' as string and 'isCorrect' as Number.",
     QUESTIONNOTFOUND:"Question Not Found",
     QUESTIONUPDATED:"Question updated successfully",
-    INVALIDDIFFICULTYLEVEL:"Invalid difficulty level"
+    INVALIDDIFFICULTYLEVEL:"Invalid difficulty level",
+    WITHDRAWREQUESTSUBMITED:"withdraw request Submitted",
+    INSUFFICIANTPOINTS:"Insufficiant Points "
 };
