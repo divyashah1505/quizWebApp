@@ -3,7 +3,7 @@ const jwt = require("jsonwebtoken");
 const crypto = require("crypto");
 const { createClient } = require("redis");
 const client = createClient();
-const config =  require("../../../config/devlopment.json");
+const config = require("../../../config/devlopment.json");
 const multer = require("multer");
 const path = require("path");
 const fs = require("fs");
@@ -95,4 +95,67 @@ const handleRefreshToken = async (req, res) => {
       .json({ success: false, message: "Invalid or expired refresh token" });
   }
 };
-module.exports = {storeUserToken,removeUserToken,getActiveToken,generateTokens,handleRefreshToken,success,error,upload}
+
+const calculateQuestionPoints = (difficultyLevel, timeTaken) => {
+
+  let basePoints = 0;
+
+  if (difficultyLevel == 0) basePoints = 10;
+  if (difficultyLevel == 1) basePoints = 30;
+  if (difficultyLevel == 2) basePoints = 50;
+
+  let finalPoints = basePoints;
+
+  if (timeTaken >= 10 && timeTaken <= 20) {
+    finalPoints = basePoints;
+  }
+  else if (timeTaken > 20 && timeTaken <= 50) {
+    finalPoints = basePoints * 0.5;
+  }
+  else if (timeTaken > 50) {
+    finalPoints = basePoints * 0.3;
+  }
+
+  return finalPoints;
+};
+
+const updateUserStreak = (user) => {
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  let streakBonus = 0;
+
+  if (user.lastActiveDate) {
+
+    const lastDate = new Date(user.lastActiveDate);
+    lastDate.setHours(0, 0, 0, 0);
+
+    const diffTime = today - lastDate;
+    const diffDays = diffTime / (1000 * 60 * 60 * 24);
+
+    if (diffDays === 1) {
+      user.streakCount += 1;
+    }
+    else if (diffDays > 1) {
+      user.streakCount = 1;
+    }
+
+  } else {
+    user.streakCount = 1;
+  }
+
+  user.lastActiveDate = today;
+
+  if (user.streakCount % 5 === 0) {
+    streakBonus = 50;
+  }
+
+  return { user, streakBonus };
+};
+
+
+
+
+
+module.exports = { storeUserToken, removeUserToken, getActiveToken, generateTokens, handleRefreshToken, success, error, upload,calculateQuestionPoints,updateUserStreak }

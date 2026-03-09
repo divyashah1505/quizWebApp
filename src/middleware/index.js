@@ -3,6 +3,7 @@ const jwt = require("jsonwebtoken");
 const config = require("../../config/devlopment.json");
 const { appString } = require("../components/utils/appString");
 const Validator = require("validatorjs");
+const user = require("../components/user/models/user")
 const admin = require("../components/admin/model/admin");
 const { getActiveToken } = require("../components/utils/commonUtils");
 

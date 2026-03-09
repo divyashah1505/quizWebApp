@@ -22,12 +22,12 @@ const userSchema = new mongoose.Schema(
             lowercase: true,
             match: [/.+@.+..+/, "Please enter a valid email address"],
         },
-          mobile: {
-      type: String,
-      unique: true,
-      sparse: true,
-      trim: true,
-    },
+        mobile: {
+            type: String,
+            unique: true,
+            sparse: true,
+            trim: true,
+        },
         password: {
             type: String,
             required: [true, "Password is required"],
@@ -56,22 +56,29 @@ const userSchema = new mongoose.Schema(
             type: Number,
             default: 0
         },
-        totalQuizAttempts:{
-            type:Number
+        totalQuizAttempts: {
+            type: Number
         },
-
+        streakCount: {
+            type:Number,
+            default:0
+        },
+        lastActiveDate:{
+            type:Date
+        },
         deletedBy: {
             type: mongoose.Schema.Types.ObjectId,
             ref: "User",
             default: null,
         },
- attemptedQuizes: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Quiz",
-      }
-    ]
+        attemptedQuizes: [
+            {
+                type: mongoose.Schema.Types.ObjectId,
+                ref: "Quiz",
+            }
+        ]
     },
+
     { timestamps: true }
 );
 

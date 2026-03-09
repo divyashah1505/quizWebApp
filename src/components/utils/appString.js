@@ -20,5 +20,6 @@ exports.appString = {
     MULTIPLECOORECTANSWERNOTALLOWED: "Multiple correct answers are not allowed. Only one 'isCorrect: 1' allowed.",
     TEXTASSTRINGISCOORECTASNUMBER:"Each option should have 'text' as string and 'isCorrect' as Number.",
     QUESTIONNOTFOUND:"Question Not Found",
-    QUESTIONUPDATED:"Question updated successfully"
+    QUESTIONUPDATED:"Question updated successfully",
+    INVALIDDIFFICULTYLEVEL:"Invalid difficulty level"
 };
