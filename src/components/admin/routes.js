@@ -5,7 +5,8 @@ const quizMangmentController = require("../admin/controller/quizManagementContro
 const adminController = require("./controller/adminLoginController");
 const quizController = require("../admin/controller/quizController");
 const questionController = require("./controller/questionController");
-const withDrawAcceptRejcectController = require("../admin/controller/adminAcceptRejcetController")
+const withDrawAcceptRejcectController = require("../admin/controller/adminAcceptRejcetController");
+const banedUnbanedFromAdminController = require("../admin/controller/banedUnbanedFromAdminController")
 const routes = [
   {
     path: "/registeradmin",
@@ -69,6 +70,11 @@ const routes = [
     path:"/acceptreject/:requestId",
     method:"post",
     controller:withDrawAcceptRejcectController.updateWithdrawStatus
+  },
+  {
+    path:"/ban-unban/:userId",
+    method:"post",
+    controller:banedUnbanedFromAdminController.banUnbanUser
   }
 ]
 module.exports = routeArray(routes, router, true);

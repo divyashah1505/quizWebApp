@@ -1,5 +1,4 @@
 const jwt = require("jsonwebtoken");
-
 const crypto = require("crypto");
 const { createClient } = require("redis");
 const client = createClient();
@@ -9,7 +8,7 @@ const path = require("path");
 const fs = require("fs");
 const cron = require("node-cron");
 const schedule = require('node-schedule');
-
+const user = require("../user/models/user")
 const withdrawalRequest = require("../user/models/withDrawRequest");
 const wallet = require("../user/models/wallet")
 const uploadDir = path.join(__dirname, "../../../uploads/IMG");
@@ -145,7 +144,6 @@ const updateUserStreak = (user) => {
     else if (diffDays > 1) {
       user.streakCount = 1;
     }
-
   } else {
     user.streakCount = 1;
   }
@@ -163,6 +161,7 @@ const convertPointsToRupees = (points) => {
   const rupees = (points / 100) * 10
   return rupees
 }
+
 
 
 module.exports = { storeUserToken, removeUserToken, getActiveToken, generateTokens, handleRefreshToken, success, error, upload, calculateQuestionPoints, updateUserStreak, convertPointsToRupees }

@@ -27,5 +27,7 @@ exports.appString = {
     REQUESTNOTFOUND:"Request Not Found",
     REQUESTALREDYPROCEED:"Request already processed",
     WITHDRAWREQUESTREJECTED:"Withdraw request rejected",
-    WITHDRAWAPPROVED:"Withdraw approved"
+    WITHDRAWAPPROVED:"Withdraw approved",
+    USERBANNEDSUCCESS:"User banned successfully",
+    USERUNBANEDNOTSUCCESS:"User unbanned successfully"
 };

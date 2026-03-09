@@ -35,7 +35,7 @@ const userController = {
 
             });
 
-            const verifyURL = ` http://localhost:3000/api/user/verify-email/${token}`;
+            const verifyURL = `http://localhost:3000/api/user/verify-email/${token}`;
 
             const html = verificationTemplate(verifyURL);
 

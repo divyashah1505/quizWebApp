@@ -66,6 +66,10 @@ const userSchema = new mongoose.Schema(
         lastActiveDate:{
             type:Date
         },
+        isBanned:{
+            type:Number,
+            default:0
+        },
         deletedBy: {
             type: mongoose.Schema.Types.ObjectId,
             ref: "User",
