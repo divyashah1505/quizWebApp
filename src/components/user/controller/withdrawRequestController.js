@@ -1,7 +1,7 @@
 const withdrawRequest = require("../models/withDrawRequest")
 // const User = require("../models/user");
 const user = require("../models/user");
-const {convertPointsToRupees,success,error} = require("../../utils/commonUtils")
+const { convertPointsToRupees, success, error } = require("../../utils/commonUtils")
 const { appString } = require("../../utils/appString");
 const withdrawController = {
     createWithDrawRequest: async (req, res) => {
@@ -21,7 +21,7 @@ const withdrawController = {
                     message: appString.INSUFFICIANTPOINTS
                 })
             }
-             const amount = convertPointsToRupees(points)
+            const amount = convertPointsToRupees(points)
             const Request = await withdrawRequest.create({
                 userId,
                 points

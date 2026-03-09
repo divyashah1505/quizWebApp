@@ -86,7 +86,6 @@ const questionController = {
                 });
             }
 
-            // Validate options structure
             if (!Array.isArray(options) || options.length < 4) {
                 return res.status(400).json({
                     success: false,
