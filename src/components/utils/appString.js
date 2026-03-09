@@ -23,5 +23,9 @@ exports.appString = {
     QUESTIONUPDATED:"Question updated successfully",
     INVALIDDIFFICULTYLEVEL:"Invalid difficulty level",
     WITHDRAWREQUESTSUBMITED:"withdraw request Submitted",
-    INSUFFICIANTPOINTS:"Insufficiant Points "
+    INSUFFICIANTPOINTS:"Insufficiant Points ",
+    REQUESTNOTFOUND:"Request Not Found",
+    REQUESTALREDYPROCEED:"Request already processed",
+    WITHDRAWREQUESTREJECTED:"Withdraw request rejected",
+    WITHDRAWAPPROVED:"Withdraw approved"
 };

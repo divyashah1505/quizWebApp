@@ -18,7 +18,7 @@ const withdrawController = {
             if (points > user.totalPoints) {
                 return res.status(404).json({
                     success: false,
-                    message: appString.appString.INSUFFICIANTPOINTS
+                    message: appString.INSUFFICIANTPOINTS
                 })
             }
              const amount = convertPointsToRupees(points)

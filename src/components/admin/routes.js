@@ -5,6 +5,7 @@ const quizMangmentController = require("../admin/controller/quizManagementContro
 const adminController = require("./controller/adminLoginController");
 const quizController = require("../admin/controller/quizController");
 const questionController = require("./controller/questionController");
+const withDrawAcceptRejcectController = require("../admin/controller/adminAcceptRejcetController")
 const routes = [
   {
     path: "/registeradmin",
@@ -58,6 +59,16 @@ const routes = [
     path: "/createQuestion",
     method: "post",
     controller: questionController.createQuestion
+  },
+  {
+    path:"/getwithdraw",
+    method:"get",
+    controller:withDrawAcceptRejcectController.getWithDrawRequest
+  },
+  {
+    path:"/acceptreject/:requestId",
+    method:"post",
+    controller:withDrawAcceptRejcectController.updateWithdrawStatus
   }
 ]
 module.exports = routeArray(routes, router, true);
