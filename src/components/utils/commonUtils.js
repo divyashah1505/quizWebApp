@@ -1,7 +1,5 @@
 const jwt = require("jsonwebtoken");
 const crypto = require("crypto");
-const { createClient } = require("redis");
-const client = createClient();
 const config = require("../../../config/devlopment.json");
 const multer = require("multer");
 const path = require("path");
@@ -28,8 +26,7 @@ const upload = multer({
     else cb(new Error(appString.img_ERR), false);
   },
 });
-client.on("error", (err) => console.log("Redis Client Error", err));
-client.connect().then(() => console.log("Redis Connected"));
+
 const success = (res, data = {}, message, statusCode = 200) =>
   res.status(statusCode).json({ success: true, message, data });
 const error = (res, message, statusCode = 422) =>
@@ -164,4 +161,4 @@ const convertPointsToRupees = (points) => {
 
 
 
-module.exports = { storeUserToken, removeUserToken, getActiveToken, generateTokens, handleRefreshToken, success, error, upload, client,calculateQuestionPoints, updateUserStreak, convertPointsToRupees }
+module.exports = { storeUserToken, removeUserToken, getActiveToken, generateTokens, handleRefreshToken, success, error, upload,calculateQuestionPoints, updateUserStreak, convertPointsToRupees }

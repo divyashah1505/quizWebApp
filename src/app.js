@@ -6,8 +6,7 @@ const config = require("../config/devlopment.json");
 const adminRouter = require("../src/components/admin/routes");
 const { appString } = require("./components/utils/appString");
 const router = require("../src/components/user/index");
-const cronwithDrawCron = require("../src/components/utils/commonUtils")
-
+const client = require("../src/components/utils/redisClient")
 const app = express();
 app.use(express.json());
 app.use(cors());
