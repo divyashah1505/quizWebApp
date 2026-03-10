@@ -25,6 +25,11 @@ module.exports = [
 
     },
     {
+        path: "/logout",
+        method: "post",
+        controller: userController.logout,
+    },
+    {
         path:"/getQuizByLevel/:level",
         method:"get",
         controller:quizController.getQuizByLevel

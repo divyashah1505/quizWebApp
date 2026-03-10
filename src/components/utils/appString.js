@@ -29,5 +29,7 @@ exports.appString = {
     WITHDRAWREQUESTREJECTED:"Withdraw request rejected",
     WITHDRAWAPPROVED:"Withdraw approved",
     USERBANNEDSUCCESS:"User banned successfully",
-    USERUNBANEDNOTSUCCESS:"User unbanned successfully"
+    USERUNBANEDNOTSUCCESS:"User unbanned successfully",
+    USERREGISTRATIONSUCCESSFULLVERIFIED:"You Are Verfied And Registered Is Complete",
+    INVALID_CREDENTIALS:"Invalid Login Credential"
 };
