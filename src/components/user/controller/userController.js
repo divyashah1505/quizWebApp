@@ -43,7 +43,7 @@ const userController = {
                 }
             );
 
-            const verifyURL = `http://localhost:3000/api/users/verify-email/${token}`;
+            const verifyURL = `http://localhost:3000/api/users/verify-mail/${token}`;
 
             const html = verificationTemplate(verifyURL);
 
@@ -67,6 +67,7 @@ const userController = {
 
     verifyEmail: async (req, res) => {
         try {
+            console.log("hit");
             
             const { token } = req.params;
 
