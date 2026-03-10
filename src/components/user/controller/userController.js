@@ -1,5 +1,6 @@
 const User = require("../models/user");
 const crypto = require("crypto");
+const client = require("../../utils/commonUtils")
 const verificationTemplate = require("../../utils/emailTemplate");
 const { appString } = require("../../utils/appString")
 const { storeUserToken, removeUserToken, getActiveToken, generateTokens, handleRefreshToken, success, error, upload } = require("../../utils/commonUtils")
@@ -8,55 +9,29 @@ const { sendEmail } = require("../../utils/mailSender");
 
 const userController = {
     registerUser: async (req, res) => {
-
         try {
-
             const { username, email, mobile, password, file } = req.body;
-
             const userExists = await User.findOne({ email });
 
             if (userExists) {
-                return res.status(400).json({
-                    success: false,
-                    message: appString.EMAILALREDYREGISTERED
-                });
+                return res.status(400).json({ success: false, message: appString.EMAILALREADYREGISTERED });
             }
 
             const token = crypto.randomBytes(32).toString("hex");
+            const userData = { username, email, mobile, password, file };
 
-            const user = await User.create({
+            await client.hSet(`unverified_user:${token}`, userData);
 
-                username,
-                email,
-                mobile,
-                password,
-                file,
-                emailVerificationToken: token
-
-            });
+            await client.EXPIRE(`unverified_user:${token}`, 86400);
 
             const verifyURL = `http://localhost:3000/api/user/verify-email/${token}`;
-
             const html = verificationTemplate(verifyURL);
-
             await sendEmail(email, "Verify Your Email", html);
 
-            res.status(200).json({
-
-                success: true,
-                message: appString.USERREGISTRATIONSUCCESSFULL
-
-            });
-
+            res.status(200).json({ success: true, message: appString.USERREGISTRATIONSUCCESSFUL });
         } catch (error) {
-
             console.log(error);
-
-            res.status(500).json({
-                success: false,
-                message: appString.SERVERERROR
-            });
-
+            res.status(500).json({ success: false, message: appString.SERVERERROR });
         }
     },
     verifyEmail: async (req, res) => {

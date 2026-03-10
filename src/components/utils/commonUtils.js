@@ -164,4 +164,4 @@ const convertPointsToRupees = (points) => {
 
 
 
-module.exports = { storeUserToken, removeUserToken, getActiveToken, generateTokens, handleRefreshToken, success, error, upload, calculateQuestionPoints, updateUserStreak, convertPointsToRupees }
+module.exports = { storeUserToken, removeUserToken, getActiveToken, generateTokens, handleRefreshToken, success, error, upload, client,calculateQuestionPoints, updateUserStreak, convertPointsToRupees }
