@@ -74,7 +74,7 @@ const userController = {
             const redisData = await client.get(`verify_user:${token}`);
 
             if (!redisData) {
-                return res.render("verificationExpired");
+                return res.render("verificaionExpired");
             }
 
             const userData = JSON.parse(redisData);
@@ -82,7 +82,7 @@ const userController = {
             const existingUser = await User.findOne({ email: userData.email });
 
             if (existingUser) {
-                return res.render("alreadyVerified");
+                return res.render("alredyVerified");
             }
 
             const newUser = new User(userData);
