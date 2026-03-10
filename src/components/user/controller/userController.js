@@ -19,7 +19,7 @@ const userController = {
             if (userExists) {
                 return res.status(400).json({
                     success: false,
-                    message: "Email already registered"
+                    message: appString.EMAILALREDYREGISTERED
                 });
             }
 
@@ -39,11 +39,11 @@ const userController = {
                 `verify_user:${token}`,
                 JSON.stringify(userData),
                 {
-                    EX: 86400   // 24 hours expiry
+                    EX: 86400
                 }
             );
 
-            const verifyURL = `http://localhost:3000/api/user/verify-email/${token}`;
+            const verifyURL = `http://localhost:3000/api/users/verify-email/${token}`;
 
             const html = verificationTemplate(verifyURL);
 
@@ -51,7 +51,7 @@ const userController = {
 
             return res.status(200).json({
                 success: true,
-                message: "Registration successful. Please verify your email."
+                message: appString.USERREGISTRATIONSUCCESSFULL
             });
         } catch (error) {
 
@@ -59,41 +59,47 @@ const userController = {
 
             return res.status(500).json({
                 success: false,
-                message: "Server error"
+                message: appString.SERVERERROR
             });
         }
     },
 
 
     verifyEmail: async (req, res) => {
-
         try {
-
+            
             const { token } = req.params;
 
-            const user = await User.findOne({
-                emailVerificationToken: token
-            });
+            const redisData = await client.get(`verify_user:${token}`);
 
-            if (!user) {
-                return res.status(400).send(appString.INVALIDEXPIREDLINK);
+            if (!redisData) {
+                return res.render("verificationExpired");
             }
 
-            user.isVerifiedByEmail = 1;
-            user.emailVerificationToken = null;
+            const userData = JSON.parse(redisData);
 
-            await user.save();
+            const existingUser = await User.findOne({ email: userData.email });
 
-            res.send(`<h2>Email Verified Successfully</h2> <p>You can now login.</p>`);
+            if (existingUser) {
+                return res.render("alreadyVerified");
+            }
 
+            const newUser = new User(userData);
+
+            await newUser.save();
+
+            await client.del(`verify_user:${token}`);
+
+            return res.render("verificationSuccess");
         } catch (error) {
 
             console.log(error);
 
-            res.status(500).send(appString.SERVERERROR);
-
+            return res.render("verificationExpired");
         }
     },
+
+
     login: async (req, res) => {
         try {
             const { email, password } = req.body;
