@@ -5,7 +5,7 @@ const verificationTemplate = require("../../utils/emailTemplate");
 const { appString } = require("../../utils/appString")
 const { storeUserToken, removeUserToken, getActiveToken, generateTokens, handleRefreshToken, success, error, upload } = require("../../utils/commonUtils")
 const bcrypt = require("bcryptjs");
-const { initSocket,sendNotificationToUser} = require("../controller/socketController")
+const { initSocket, sendNotificationToUser } = require("../controller/socketController")
 const { sendEmail } = require("../../utils/mailSender");
 
 const userController = {
@@ -48,12 +48,17 @@ const userController = {
             const html = verificationTemplate(verifyURL);
 
             await sendEmail(email, "Verify Your Email", html);
+            sendNotificationToUser(email, 'User Regsitered', appString.USERREGISTRATIONSUCCESSFULL);
 
             return res.status(200).json({
                 success: true,
                 message: appString.USERREGISTRATIONSUCCESSFULL
-            });
-            
+
+            }
+
+            );
+
+
 
         } catch (error) {
 
@@ -70,7 +75,7 @@ const userController = {
     verifyEmail: async (req, res) => {
         try {
             console.log("hit");
-            
+
             const { token } = req.params;
 
             const redisData = await client.get(`verify_user:${token}`);
@@ -102,8 +107,6 @@ const userController = {
             return res.render("verificationExpired");
         }
     },
-
-
     login: async (req, res) => {
         try {
             const { email, password } = req.body;

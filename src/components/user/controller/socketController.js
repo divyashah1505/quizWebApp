@@ -9,20 +9,20 @@ const initSocket = (server) => {
         console.log("New socket connection attempt.");
         const userId = socket.handshake.query.userId;
         const deviceType = socket.handshake.query.deviceType; 
+        const email = socket.handshake.query.email;
+        // if (!email) {
+        //     console.log("No email provided. Disconnecting.");
+        //     socket.disconnect(true);
+        //     return;
+        // }
 
-        if (!userId) {
-            console.log("No userId provided. Disconnecting.");
-            socket.disconnect(true);
-            return;
-        }
-
-        console.log(`User Connected: ${userId} on ${deviceType}`);
+        console.log(`User Connected: ${email} on ${deviceType}`);
         console.log(`Socket ID: ${socket.id}`);
 
-        if (!onlineUsers.has(userId.toString())) {
-            onlineUsers.set(userId.toString(), []);
-        }
-        onlineUsers.get(userId.toString()).push({ socketId: socket.id, deviceType });
+        // if (!onlineUsers.has(email.toString())) {
+        //     onlineUsers.set(email.toString(), []);
+        // }
+        // onlineUsers.get(email.toString()).push({ socketId: socket.id, deviceType });
         
         console.log("Online Users:", onlineUsers);
 
@@ -46,15 +46,15 @@ const initSocket = (server) => {
     });
 };
 
-const sendNotificationToUser = (userId, eventName, data) => {
-    const userConnections = onlineUsers.get(userId.toString());
+const sendNotificationToUser = (email,userId, eventName, data) => {
+    const userConnections = onlineUsers.get(email,userId.toString());
     if (userConnections && io) {
         userConnections.forEach(connection => {
             io.to(connection.socketId).emit(eventName, data);
-            console.log(`Notification sent to User ${userId} on ${connection.deviceType}`);
+            console.log(`Notification sent to User ${email} on ${connection.deviceType}`);
         });
     } else {
-        console.log(`User ${userId} not online or no active connections`);
+        console.log(`User ${email} not online or no active connections`);
     }
 };
 
