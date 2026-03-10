@@ -5,7 +5,7 @@ const verificationTemplate = require("../../utils/emailTemplate");
 const { appString } = require("../../utils/appString")
 const { storeUserToken, removeUserToken, getActiveToken, generateTokens, handleRefreshToken, success, error, upload } = require("../../utils/commonUtils")
 const bcrypt = require("bcryptjs");
-
+const { initSocket,sendNotificationToUser} = require("../controller/socketController")
 const { sendEmail } = require("../../utils/mailSender");
 
 const userController = {
@@ -53,6 +53,8 @@ const userController = {
                 success: true,
                 message: appString.USERREGISTRATIONSUCCESSFULL
             });
+            
+
         } catch (error) {
 
             console.log(error);
@@ -92,6 +94,7 @@ const userController = {
             await client.del(`verify_user:${token}`);
 
             return res.render("verificationSuccess");
+
         } catch (error) {
 
             console.log(error);
