@@ -31,7 +31,7 @@ const quizController = {
                 });
             }
 
-           
+
             res.status(200).json({
                 success: true,
                 data: {
@@ -53,81 +53,114 @@ const quizController = {
     submitQuiz: async (req, res) => {
         try {
 
-            const { quizId, answers } = req.body;
+            const { quizId, questionId, selectedOption, timeTaken } = req.body;
             const userId = req.user.id;
 
-            const questions = await Question.find({ quizId });
+            const question = await Question.findById(questionId);
             const quiz = await Quiz.findById(quizId);
 
-            let score = 0;
-            let totalPoints = 0;
-            let processedAnswers = [];
+            if (!question) {
+                return res.status(404).json({
+                    success: false,
+                    message: appString.QUESTIONNOTFOUND
+                });
+            }
 
-            questions.forEach((q) => {
+            const alreadyAttempted = await QuizAttempt.findOne({
+                userId,
+                quizId,
+                "answers.questionId": questionId
+            });
 
-                const userAnswer = answers.find(
-                    (a) => a.questionId == q._id
-                );
+            if (alreadyAttempted) {
+                return res.status(400).json({
+                    success: false,
+                    message: "You already attempted this question"
+                });
+            }
 
-                if (userAnswer) {
+            const correctIndex = question.options.findIndex(
+                (o) => o.isCorrect === 1
+            );
 
-                    const correctIndex = q.options.findIndex(
-                        (o) => o.isCorrect === 1
-                    );
+            let isCorrect = 0;
+            let pointsEarned = 0;
 
-                    let isCorrect = 0;
-                    let questionPoints = 0;
+            if (selectedOption === correctIndex) {
+                isCorrect = 1;
+            }
 
-                    if (userAnswer.selectedOption === correctIndex) {
+            await QuizAttempt.updateOne(
+                { userId, quizId },
+                {
+                    $push: {
+                        answers: {
+                            questionId,
+                            selectedOption,
+                            isCorrect
+                        }
+                    },
+                     $inc:{score:isCorrect}
 
-                        score++;
-                        isCorrect = 1;
+                },
+                { upsert: true }
+            );
 
-                        questionPoints = calculateQuestionPoints(
+            const totalQuestions = await Question.countDocuments({ quizId });
+
+            const attempt = await QuizAttempt.findOne({ userId, quizId });
+
+            if (attempt.answers.length === totalQuestions) {
+
+                if (!timeTaken) {
+                    return res.status(400).json({
+                        success: false,
+                        message: appString.TIMETAKENREQUIREDFORLAST
+                    });
+                }
+
+                let totalPoints = 0;
+
+                for (let ans of attempt.answers) {
+
+                    if (ans.isCorrect === 1) {
+
+                        const questionPoints = calculateQuestionPoints(
                             quiz.difficultyLevel,
-                            userAnswer.timeTaken
+                            timeTaken
                         );
+
+                        ans.pointsEarned = questionPoints;
 
                         totalPoints += questionPoints;
                     }
-
-                    processedAnswers.push({
-                        questionId: q._id,
-                        selectedOption: userAnswer.selectedOption,
-                        isCorrect,
-                        timeTaken: userAnswer.timeTaken,
-                        pointsEarned: questionPoints
-                    });
-
                 }
 
-            });
+                const user = await User.findById(userId);
 
-            await QuizAttempt.create({
-                userId,
-                quizId,
-                answers: processedAnswers,
-                score
-            });
+                const streakData = updateUserStreak(user);
 
-            const user = await User.findById(userId);
+                totalPoints += streakData.streakBonus;
 
-            const streakData = updateUserStreak(user);
+                user.totalPoints += totalPoints;
 
-            const streakBonus = streakData.streakBonus;
+                await user.save();
 
-            totalPoints += streakBonus;
+                await attempt.save();
 
-            user.totalPoints += totalPoints;
+                return res.json({
+                    success: true,
+                    message: appString.QUIZCOMPLETE,
+                    score:attempt.score,
+                    totalPoints,
+                    streakBonus: streakData.streakBonus,
+                    streakCount: user.streakCount
+                });
+            }
 
-            await user.save();
-
-            res.json({
+            return res.json({
                 success: true,
-                score,
-                pointsEarned: totalPoints,
-                streakCount: user.streakCount,
-                streakBonus
+                message: appString.ANSWERSUBMITTED
             });
 
         } catch (error) {
@@ -140,6 +173,8 @@ const quizController = {
             });
         }
     }
+
+
 
 };
 module.exports = quizController

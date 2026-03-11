@@ -41,5 +41,8 @@ exports.appString = {
     LOGINFIRSTFROMMAIL:"Please verify your login first from email",
     VERIFICATIONMAILSEND:"Verification email sent. Please check your Email.",
     LOGINFAILED:"Login Failed",
-    LOGINVERIFICATIONSUCCESSFULL:"Yours Login Verification Succesfull"
+    LOGINVERIFICATIONSUCCESSFULL:"Yours Login Verification Succesfull",
+    QUIZCOMPLETE: "Quiz completed",
+     TIMETAKENREQUIREDFORLAST:"timeTaken required for last question",
+     ANSWERSUBMITTED:"Answer Submitted Successfully"
 };
