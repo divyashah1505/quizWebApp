@@ -83,7 +83,7 @@ const userController = {
             return res.render("verificationExpired");
         }
     },
-    
+
     login: async (req, res) => {
         try {
 
@@ -108,13 +108,13 @@ const userController = {
                 user.loginVerifyToken = loginVerifyToken;
                 await user.save();
 
-                const verificationUrl =`http://localhost:3000/api/users/verify-login?token=${loginVerifyToken}`;
+                const verificationUrl = `http://localhost:3000/api/users/verify-login?token=${loginVerifyToken}`;
 
                 const html = verificationLoginTemplate(verificationUrl);
 
                 await sendEmail(user.email, "Login Verification", html);
 
-                return success(res, null,appString.VERIFICATIONMAILSEND);
+                return success(res, null, appString.VERIFICATIONMAILSEND);
             }
 
             if (user.isLoginVeried !== 1) {
@@ -124,7 +124,7 @@ const userController = {
             const isMatch = await user.matchPassword(password);
 
             if (!isMatch) {
-                return error(res,appString.INVALIDPASSWORD, 401);
+                return error(res, appString.INVALIDPASSWORD, 401);
             }
 
             const { accessToken, refreshToken } = await generateTokens(user);
@@ -160,7 +160,7 @@ const userController = {
             user.isLoginVeried = 1;
 
             await user.save();
-
+            sendNotificationToUser(user._id.toString(), "Login Verified", { message: appString.LOGINVERIFICATIONSUCCESSFULL })
             return res.render("loginSuccess");
 
         } catch (err) {

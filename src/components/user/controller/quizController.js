@@ -31,17 +31,13 @@ const quizController = {
                 });
             }
 
-            const questions = await Question.find({ quizId: quiz._id })
-                .select("-options.isCorrect")
-                .limit(10);
-
+           
             res.status(200).json({
                 success: true,
                 data: {
                     quizId: quiz._id,
                     title: quiz.title,
                     difficultyLevel: quiz.difficultyLevel,
-                    questions
                 }
             });
         } catch (error) {

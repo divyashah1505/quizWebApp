@@ -40,5 +40,6 @@ exports.appString = {
     INVALIDPASSWORD:"Invalid Password",
     LOGINFIRSTFROMMAIL:"Please verify your login first from email",
     VERIFICATIONMAILSEND:"Verification email sent. Please check your Email.",
-    LOGINFAILED:"Login Failed"
+    LOGINFAILED:"Login Failed",
+    LOGINVERIFICATIONSUCCESSFULL:"Yours Login Verification Succesfull"
 };
