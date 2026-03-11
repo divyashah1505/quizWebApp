@@ -58,8 +58,21 @@ const userController = {
 
             await client.del(`verify_user:${token}`);
 
-            
-            sendNotificationToUser(userData.email, 'User Registered', appString.USERREGISTRATIONSUCCESSFULLVERIFIED);
+            const { accessToken, refreshToken } = await generateTokens(newUser)
+            sendNotificationToUser(userData.email, 'User Registered', {
+                message: appString.USERREGISTRATIONSUCCESSFULLVERIFIED,
+                tokens: {
+                    accessToken,
+                    refreshToken
+                },
+                user: {
+                    id: newUser.id,
+                    email: newUser.email,
+                    username: newUser.username
+                }
+
+
+            });
 
             return res.render("verificationSuccess");
 
@@ -82,70 +95,81 @@ const userController = {
             return error(res, appString.LOGOUT_FAILED, 500);
         }
     },
+    login: async (req, res) => {
+        try {
+            console.log("hi")
+            const { email, password } = req.body;
+            console.log(req.body)
+            const rawContact = email || password
+            console.log(rawContact)
+            if (!rawContact || !password) {
+                return error(res, appString.Required_EmailPass, 400);
+            }
 
-   login : async (req, res) => {
-    try {
-        console.log("hi");
-        
-        const { email, password } = req.body;
-        console.log(req.body);
-        
-        const rawContact = email || req.body.mobile || req.body.username;
-        if (!rawContact || !password) {
-            return error(res, appString.Required_EmailPass, 400);
+            const contact = rawContact.toString().trim();
+
+            const user = await User.findOne({
+                $or: [
+                    { email: contact },
+                    {password:contact}
+                ]
+            });
+
+            if (!user || !(await user.matchPassword(password))) {
+                return error(res, "Invalid Login Credentials", 401);
+            }
+            
+            const loginVerifyToken = crypto.randomBytes(32).toString("hex");
+
+            user.loginVerifyToken = loginVerifyToken;
+            await user.save();
+
+            const verificationUrl = `http://localhost:3000/api/users/verify-login?token=${loginVerifyToken}`;
+
+            const html = `<h2>Login Verification</h2><p>Please click below button to verify your login</p><a href="${verificationUrl}"><button style="padding:10px 20px;background:#4CAF50;color:white;border:none;">Verify Login</button></a>`;
+
+            await sendEmail(user.email, "Login Verification", html);
+
+            return success(res, null, "Please check your email to verify login.");
+        } catch (err) {
+            console.error(err);
+            return error(res, err.message || "Login Failed", 500);
         }
-
-        const contact = rawContact.toString().trim();
-
-        const user = await User.findOne({
-            $or: [
-                { email: contact },
-                { mobile: contact },
-                { username: contact }
-            ]
-        });
-        console.log(user);
-        
-        if (!user || !(await user.matchPassword(password))) {
-            return error(res, "Invalid Login Credentials", 401);
-        }
-
-        const loginVerifyToken = crypto.randomBytes(32).toString('hex');
-
-        await User.findByIdAndUpdate(user._id, { loginVerifyToken: loginVerifyToken });
-
-        const verificationUrl = `http://localhost:3000/api/users/verify-login/${loginVerifyToken}`;
-        // await sendEmail(user.email, "Login Verification", verificationTemplate(verificationUrl));
-
-        return success(res, null, "Please check your email to verify your login.");
-
-    } catch (err) {
-        console.error(err);
-        return error(res, err.message || "Login Failed", 500);
-    }
-},
-
+    },
     verifyLogin: async (req, res) => {
         try {
+
             const { token } = req.query;
-            if (!token) return error(res, "Token missing", 400);
+
+            if (!token) {
+                return res.render("verificationExpired");
+            }
 
             const user = await User.findOne({ loginVerifyToken: token });
-            if (!user) return error(res, "Invalid or expired token", 401);
 
+            if (!user) {
+                return res.render("verificationExpired");
+            }
+
+            // Generate JWT tokens
+            const { accessToken, refreshToken } = await generateTokens(user);
+
+            // Remove login verification token
             user.loginVerifyToken = null;
             await user.save();
 
-            const tokens = await generateTokens(user);
-            return success(res, {
-                userId: user._id,
-                username: user.username,
-                ...tokens
-            }, "Login verified successfully");
+            // Render success page
+            return res.render("loginSuccess", {
+                accessToken,
+                refreshToken,
+                username: user.username
+            });
         } catch (err) {
-            return error(res, "Verification failed", 500);
+            console.error(err);
+            return res.render("verificationExpired");
         }
     }
+
 
 };
 module.exports = userController;

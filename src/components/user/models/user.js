@@ -34,7 +34,10 @@ const userSchema = new mongoose.Schema(
         file: { type: String },
         status: { type: Number, enum: [0, 1], default: 1 },
         isVerifiedByEmail: { type: Number, enum: [0, 1], default: 0 },
-        loginVerifyToken: { type: String }, // Added to schema to match controller
+        loginVerifyToken: { 
+            type: String,
+            default:null
+         },
         totalPoints: { type: Number, default: 0 },
         streakCount: { type: Number, default: 0 },
         isBanned: { type: Number, default: 0 },
@@ -44,15 +47,13 @@ const userSchema = new mongoose.Schema(
     { timestamps: true }
 );
 
-// Hash password before saving
-userSchema.pre("save", async function (next) {
+userSchema.pre("save", async function () {
     if (!this.isModified("password")) return next();
     const salt = await bcrypt.genSalt(10);
     this.password = await bcrypt.hash(this.password, salt);
-    next();
+    // next();
 });
 
-// Compare Password
 userSchema.methods.matchPassword = async function (enteredPassword) {
     return await bcrypt.compare(enteredPassword, this.password);
 };
