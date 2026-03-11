@@ -58,7 +58,7 @@ const userController = {
 
             await client.del(`verify_user:${token}`);
 
-
+            
             sendNotificationToUser(userData.email, 'User Registered', appString.USERREGISTRATIONSUCCESSFULLVERIFIED);
 
             return res.render("verificationSuccess");
