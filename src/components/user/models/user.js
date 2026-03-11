@@ -38,6 +38,10 @@ const userSchema = new mongoose.Schema(
             type: String,
             default:null
          },
+         isLoginVeried:{
+            type :Number, //1 for verified 0 for unverified
+            default:0
+        },
         totalPoints: { type: Number, default: 0 },
         streakCount: { type: Number, default: 0 },
         isBanned: { type: Number, default: 0 },
@@ -48,14 +52,13 @@ const userSchema = new mongoose.Schema(
 );
 
 userSchema.pre("save", async function () {
-    if (!this.isModified("password")) return next();
+    if (!this.isModified("password")) return;
     const salt = await bcrypt.genSalt(10);
     this.password = await bcrypt.hash(this.password, salt);
-    // next();
 });
 
-userSchema.methods.matchPassword = async function (enteredPassword) {
-    return await bcrypt.compare(enteredPassword, this.password);
+userSchema.methods.matchPassword = async function (password) {
+    return await bcrypt.compare(password, this.password);
 };
 
 module.exports = mongoose.model("User", userSchema);

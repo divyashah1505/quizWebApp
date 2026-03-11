@@ -25,7 +25,7 @@ module.exports = [
 
     },
     {
-        path:"/verify-login/:loginVerifyToken",
+        path:"/verify-login",
         method:"get",
          controller: userController.verifyLogin,
          isPublic: true

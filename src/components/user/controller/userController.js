@@ -19,7 +19,7 @@ const userController = {
             }
             const hashedPassword = await bcrypt.hash(password, 10);
             const token = crypto.randomBytes(32).toString('hex');
-            const userData = { username, email, mobile, password: hashedPassword, file };
+            const userData = { username, email, mobile, password, file };
 
             await client.set(`verify_user:${token}`, JSON.stringify(userData), { EX: 86400 });
 
@@ -97,45 +97,70 @@ const userController = {
     },
     login: async (req, res) => {
         try {
-            console.log("hi")
+
             const { email, password } = req.body;
-            console.log(req.body)
-            const rawContact = email || password
-            console.log(rawContact)
-            if (!rawContact || !password) {
+
+            if (!email || !password) {
                 return error(res, appString.Required_EmailPass, 400);
             }
 
-            const contact = rawContact.toString().trim();
+            const contact = email.toString().trim();
 
             const user = await User.findOne({
                 $or: [
                     { email: contact },
-                    {password:contact}
+                    { mobile: contact },
+                    { username: contact }
                 ]
             });
 
             if (!user || !(await user.matchPassword(password))) {
                 return error(res, "Invalid Login Credentials", 401);
             }
-            
+
+            if (user.isLoginVeried === 1) {
+
+                const { accessToken, refreshToken } = await generateTokens(user);
+
+                return success(res, {
+                    userId: user._id,
+                    username: user.username,
+                    accessToken,
+                    refreshToken
+                }, "Login Successful");
+
+            }
+
             const loginVerifyToken = crypto.randomBytes(32).toString("hex");
 
             user.loginVerifyToken = loginVerifyToken;
+
             await user.save();
 
-            const verificationUrl = `http://localhost:3000/api/users/verify-login?token=${loginVerifyToken}`;
+            const verificationUrl =
+                `http://localhost:3000/api/users/verify-login?token=${loginVerifyToken}`;
 
-            const html = `<h2>Login Verification</h2><p>Please click below button to verify your login</p><a href="${verificationUrl}"><button style="padding:10px 20px;background:#4CAF50;color:white;border:none;">Verify Login</button></a>`;
+            const html = `
+    <h2>Login Verification</h2>
+    <p>Please click below button to verify your login</p>
+    <a href="${verificationUrl}">
+    <button style="padding:10px 20px;background:#4CAF50;color:white;border:none;">
+    Verify Login
+    </button>
+    </a>
+    `;
 
             await sendEmail(user.email, "Login Verification", html);
+            sendNotificationToUser(user.email, 'User LoginSuccess', { message: appString.USERLOGINSUCCESS })
 
             return success(res, null, "Please check your email to verify login.");
+
         } catch (err) {
             console.error(err);
-            return error(res, err.message || "Login Failed", 500);
+            return error(res, appString.LOGINFAILED, 500);
         }
     },
+
     verifyLogin: async (req, res) => {
         try {
 
@@ -151,14 +176,11 @@ const userController = {
                 return res.render("verificationExpired");
             }
 
-            // Generate JWT tokens
             const { accessToken, refreshToken } = await generateTokens(user);
 
-            // Remove login verification token
             user.loginVerifyToken = null;
+            user.isLoginVeried = 1
             await user.save();
-
-            // Render success page
             return res.render("loginSuccess", {
                 accessToken,
                 refreshToken,
