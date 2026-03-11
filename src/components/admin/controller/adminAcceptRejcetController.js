@@ -22,113 +22,113 @@ const withDrawAcceptRejcectController = {
 
         }
     },
-   updateWithdrawStatus: async (req, res) => {
+    updateWithdrawStatus: async (req, res) => {
 
-    try {
+        try {
 
-        const { requestId } = req.params;
-        const { status } = req.body; // 1 = Accept , 2 = Reject
+            const { requestId } = req.params;
+            const { status } = req.body; // 1 = Accept , 2 = Reject
 
-        const request = await WithdrawRequest.findById(requestId);
+            const request = await WithdrawRequest.findById(requestId);
 
-        if (!request) {
-            return res.status(404).json({
-                success: false,
-                message: appString.REQUESTNOTFOUND
-            });
-        }
+            if (!request) {
+                return res.status(404).json({
+                    success: false,
+                    message: appString.REQUESTNOTFOUND
+                });
+            }
 
-        if (request.status !== 0) {
-            return res.status(400).json({
-                success: false,
-                message: appString.REQUESTALREDYPROCEED
-            });
-        }
-
-        // Reject Request
-        if (status === 2) {
-
-            request.status = 2;
-
-            await request.save();
-
-            return res.json({
-                success: true,
-                message: appString.WITHDRAWREQUESTREJECTED
-            });
-        }
-
-        // Accept Request
-        if (status === 1) {
-
-            const points = Number(request.points);
-
-            if (!points || points <= 0) {
+            if (request.status !== 0) {
                 return res.status(400).json({
                     success: false,
-                    message: appString.INSUFFICIANTPOINTS
+                    message: appString.REQUESTALREDYPROCEED
                 });
             }
 
-            const amount = (points / 100) * 10;
+            // Reject Request
+            if (status === 2) {
 
-            const adminFee = amount * 0.10;
+                request.status = 2;
 
-            const userAmount = amount - adminFee;
+                await request.save();
 
-            let wallet = await Wallet.findOne({ userId: request.userId });
-
-            if (!wallet) {
-                wallet = await Wallet.create({
-                    userId: request.userId,
-                    balance: 0
+                return res.json({
+                    success: true,
+                    message: appString.WITHDRAWREQUESTREJECTED
                 });
             }
 
-            wallet.balance = Number(wallet.balance || 0) + Number(userAmount);
+            // Accept Request
+            if (status === 1) {
 
-            await wallet.save();
+                const points = Number(request.points);
 
-            const admin = await Admin.findOne();
+                if (!points || points <= 0) {
+                    return res.status(400).json({
+                        success: false,
+                        message: appString.INSUFFICIANTPOINTS
+                    });
+                }
 
-            if (admin) {
+                const amount = (points / 100) * 10;
 
-                admin.adminFeeConfigure =
-                    Number(admin.adminFeeConfigure || 0) + Number(adminFee);
+                const adminFee = amount * 0.10;
 
-                await admin.save();
+                const userAmount = amount - adminFee;
+
+                let wallet = await Wallet.findOne({ userId: request.userId });
+
+                if (!wallet) {
+                    wallet = await Wallet.create({
+                        userId: request.userId,
+                        balance: 0
+                    });
+                }
+
+                wallet.balance = Number(wallet.balance || 0) + Number(userAmount);
+
+                await wallet.save();
+
+                const admin = await Admin.findOne();
+
+                if (admin) {
+
+                    admin.adminFeeConfigure =
+                        Number(admin.adminFeeConfigure || 0) + Number(adminFee);
+
+                    await admin.save();
+                }
+
+                request.status = 1;
+
+                await request.save();
+
+                return res.json({
+                    success: true,
+                    message: appString.WITHDRAWAPPROVED,
+                    points,
+                    amount,
+                    adminFee,
+                    userAmount
+                });
             }
 
-            request.status = 1;
+            return res.status(400).json({
+                success: false,
+                message: appString.INVALIDSTATUSVALUE
+            });
 
-            await request.save();
+        } catch (error) {
 
-            return res.json({
-                success: true,
-                message: appString.WITHDRAWAPPROVED,
-                points,
-                amount,
-                adminFee,
-                userAmount
+            console.log(error);
+
+            res.status(500).json({
+                success: false,
+                message: appString.SERVERERROR
             });
         }
 
-        return res.status(400).json({
-            success: false,
-            message: appString.INVALIDSTATUSVALUE
-        });
-
-    } catch (error) {
-
-        console.log(error);
-
-        res.status(500).json({
-            success: false,
-            message: appString.SERVERERROR
-        });
     }
-
-}
 };
 
 module.exports = withDrawAcceptRejcectController;

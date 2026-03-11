@@ -75,6 +75,12 @@ const routes = [
     path:"/ban-unban/:userId",
     method:"post",
     controller:banedUnbanedFromAdminController.banUnbanUser
+  },
+  {
+    path:"/getallquiz/:level",
+    method:"get",
+   controller:adminController.getQuizByLevel
+
   }
 ]
 module.exports = routeArray(routes, router, true);

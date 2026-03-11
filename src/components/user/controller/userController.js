@@ -183,6 +183,25 @@ const userController = {
             return error(res, appString.LOGOUT_FAILED, 500);
         }
     },
+    userList: async (req, res) => {
+        try {
+            const userId = req?.user?.id;
+
+            const currentUser = await User.findById(userId);
+            if (!currentUser) {
+                return error(res, appString.USERNOTFOUND, 400);
+            }
+
+            const userList = await User.find({}).sort({ score: -1 }).exec();
+
+            return res.status(200).json({ success: true, users: userList });
+
+        } catch (err) {
+            console.error(err);
+            return error(res, appString.SOMETHINGWENTWRONG, 500);
+        }
+    }
+
 
 
 };

@@ -173,7 +173,7 @@ const quizController = {
             });
         }
     }
-
+    
 
 
 };

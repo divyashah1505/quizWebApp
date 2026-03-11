@@ -1,7 +1,8 @@
 const Admin = require("../model/admin");
 const { generateTokens, success, error } = require("../../utils/commonUtils");
 const { appString } = require("../../utils/appString");
-
+const Quiz = require("../model/quiz")
+const Question = require("../model/question")
 const adminController = {
   register: async (req, res) => {
     try {
@@ -46,5 +47,53 @@ const adminController = {
       error(res, err.message || appString.LOGIN_FAILED, 500);
     }
   },
+  getQuizByLevel: async (req, res) => {
+        try {
+            console.log("Level Param", req.params.level);
+
+            const level = parseInt(req.params.level);
+
+            if (isNaN(level)) {
+                return res.status(400).json({
+                    success: false,
+                    message: appString.INVALIDDIFFICULTYLEVEL
+                });
+            }
+
+            const quiz = await Quiz.findOne({
+                difficultyLevel: level,
+                status: 1
+            });
+
+            if (!quiz) {
+                return res.status(404).json({
+                    success: false,
+                    message: appString.QUIZNOTFOUND
+                });
+            }
+
+            const questions = await Question.find({ quizId: quiz._id })
+                .select("-options.isCorrect")
+                .limit(10);
+
+            res.status(200).json({
+                success: true,
+                data: {
+                    quizId: quiz._id,
+                    title: quiz.title,
+                    difficultyLevel: quiz.difficultyLevel,
+                    questions
+                }
+            });
+        } catch (error) {
+
+            console.log(error);
+
+            res.status(500).json({
+                success: false,
+                message: appString.SERVERERROR
+            });
+        }
+    },
 }
 module.exports = adminController;

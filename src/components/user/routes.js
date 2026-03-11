@@ -49,6 +49,11 @@ module.exports = [
         path:"/withdraw/request",
         method:"post",
         controller:withdrawController.createWithDrawRequest
+    },
+    {
+        path:"/userListHscoreToL",
+        method:"get",
+        controller:userController.userList
     }
    
 ]
