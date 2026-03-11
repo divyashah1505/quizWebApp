@@ -2,12 +2,14 @@ const User = require("../models/user");
 const crypto = require("crypto");
 const client = require("../../utils/redisClient")
 const verificationTemplate = require("../../utils/emailTemplate");
+const verificationLoginTemplate = require("../../utils/loginEmailTemplate");
 const { appString } = require("../../utils/appString")
 const { storeUserToken, removeUserToken, getActiveToken, generateTokens, handleRefreshToken, success, error, upload } = require("../../utils/commonUtils")
 const bcrypt = require("bcryptjs");
 const { initSocket, sendNotificationToUser } = require("../controller/socketController")
 const { sendEmail } = require("../../utils/mailSender");
 const { log } = require("console");
+const user = require("../models/user");
 
 const userController = {
     registerUser: async (req, res) => {
@@ -81,86 +83,64 @@ const userController = {
             return res.render("verificationExpired");
         }
     },
-    logout: async (req, res) => {
-        try {
-            const token = req.headers.authorization?.split(" ")[1];
-
-            if (!token) {
-                return error(res, "No token provided", 400);
-            }
-
-            await removeUserToken(req.user.id, token);
-            return success(res, {}, appString.LOGOUT_SUCCESS);
-        } catch (err) {
-            return error(res, appString.LOGOUT_FAILED, 500);
-        }
-    },
+    
     login: async (req, res) => {
         try {
 
             const { email, password } = req.body;
 
-            if (!email || !password) {
-                return error(res, appString.Required_EmailPass, 400);
+            if (!email) {
+                return error(res, "Email is required", 400);
             }
 
             const contact = email.toString().trim();
 
-            const user = await User.findOne({
-                $or: [
-                    { email: contact },
-                    { mobile: contact },
-                    { username: contact }
-                ]
-            });
+            const user = await User.findOne({ email: contact });
 
-            if (!user || !(await user.matchPassword(password))) {
-                return error(res, "Invalid Login Credentials", 401);
+            if (!user) {
+                return error(res, appString.USERNOTFOUND, 404);
             }
 
-            if (user.isLoginVeried === 1) {
+            if (!password) {
 
-                const { accessToken, refreshToken } = await generateTokens(user);
+                const loginVerifyToken = crypto.randomBytes(32).toString("hex");
 
-                return success(res, {
-                    userId: user._id,
-                    username: user.username,
-                    accessToken,
-                    refreshToken
-                }, "Login Successful");
+                user.loginVerifyToken = loginVerifyToken;
+                await user.save();
 
+                const verificationUrl =`http://localhost:3000/api/users/verify-login?token=${loginVerifyToken}`;
+
+                const html = verificationLoginTemplate(verificationUrl);
+
+                await sendEmail(user.email, "Login Verification", html);
+
+                return success(res, null,appString.VERIFICATIONMAILSEND);
             }
 
-            const loginVerifyToken = crypto.randomBytes(32).toString("hex");
+            if (user.isLoginVeried !== 1) {
+                return error(res, appString.LOGINFIRSTFROMMAIL, 401);
+            }
 
-            user.loginVerifyToken = loginVerifyToken;
+            const isMatch = await user.matchPassword(password);
 
-            await user.save();
+            if (!isMatch) {
+                return error(res,appString.INVALIDPASSWORD, 401);
+            }
 
-            const verificationUrl =
-                `http://localhost:3000/api/users/verify-login?token=${loginVerifyToken}`;
+            const { accessToken, refreshToken } = await generateTokens(user);
 
-            const html = `
-    <h2>Login Verification</h2>
-    <p>Please click below button to verify your login</p>
-    <a href="${verificationUrl}">
-    <button style="padding:10px 20px;background:#4CAF50;color:white;border:none;">
-    Verify Login
-    </button>
-    </a>
-    `;
-
-            await sendEmail(user.email, "Login Verification", html);
-            sendNotificationToUser(user.email, 'User LoginSuccess', { message: appString.USERLOGINSUCCESS })
-
-            return success(res, null, "Please check your email to verify login.");
+            return success(res, {
+                userId: user._id,
+                username: user.username,
+                accessToken,
+                refreshToken
+            }, appString.LOGINSUCCESS);
 
         } catch (err) {
             console.error(err);
             return error(res, appString.LOGINFAILED, 500);
         }
     },
-
     verifyLogin: async (req, res) => {
         try {
 
@@ -176,21 +156,33 @@ const userController = {
                 return res.render("verificationExpired");
             }
 
-            const { accessToken, refreshToken } = await generateTokens(user);
-
             user.loginVerifyToken = null;
-            user.isLoginVeried = 1
+            user.isLoginVeried = 1;
+
             await user.save();
-            return res.render("loginSuccess", {
-                accessToken,
-                refreshToken,
-                username: user.username
-            });
+
+            return res.render("loginSuccess");
+
         } catch (err) {
             console.error(err);
             return res.render("verificationExpired");
         }
-    }
+    },
+    logout: async (req, res) => {
+        try {
+            const userId = req?.user?.id;
+            const user = await User.findById(userId);
+            if (!user) {
+                return error(res, appString.USERNOTFOUND, 400);
+            }
+            user.isLoginVeried = 0;
+            await user.save()
+            await removeUserToken(userId);
+            return success(res, {}, appString.LOGOUT_SUCCESS);
+        } catch (err) {
+            return error(res, appString.LOGOUT_FAILED, 500);
+        }
+    },
 
 
 };
