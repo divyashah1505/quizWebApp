@@ -1,9 +1,10 @@
-const Quiz = require("../../admin/model/quiz");
+// const Quiz = require("../../admin/model/quiz");
 const Question = require("../../admin/model/question");
 const { appString } = require("../../utils/appString");
 const QuizAttempt = require("../models/quizAttepmt");
-const User = require("../models/user");
-const user = require("../models/user");
+const User = require('../models/user');
+const Quiz = require('../../admin/model/quiz'); 
+
 const { calculateQuestionPoints, updateUserStreak } = require("../../utils/commonUtils")
 const quizController = {
     getQuizByLevel: async (req, res) => {
@@ -75,10 +76,19 @@ const quizController = {
             if (alreadyAttempted) {
                 return res.status(400).json({
                     success: false,
-                    message: "You already attempted this question"
+                    message: appString.ALREDYATTEMPTEDQUESTION
                 });
             }
 
+          const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      { $addToSet: { attemptedQuizes: quizId } },
+      { new: true, runValidators: true } 
+    ).populate('attemptedQuizes'); 
+
+    if (!updatedUser) {
+      return res.status(404).json({ success: false, message: 'User not found' });
+    }
             const correctIndex = question.options.findIndex(
                 (o) => o.isCorrect === 1
             );
@@ -100,7 +110,7 @@ const quizController = {
                             isCorrect
                         }
                     },
-                     $inc:{score:isCorrect}
+                    $inc: { score: isCorrect }
 
                 },
                 { upsert: true }
@@ -151,10 +161,11 @@ const quizController = {
                 return res.json({
                     success: true,
                     message: appString.QUIZCOMPLETE,
-                    score:attempt.score,
+                    score: attempt.score,
                     totalPoints,
                     streakBonus: streakData.streakBonus,
-                    streakCount: user.streakCount
+                    streakCount: user.streakCount,
+                    attemptedQuizes: updatedUser.attemptedQuizes
                 });
             }
 
@@ -173,7 +184,7 @@ const quizController = {
             });
         }
     }
-    
+
 
 
 };

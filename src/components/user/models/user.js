@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 const bcrypt = require("bcryptjs");
 const { appString } = require("../../utils/appString");
-
+const Quiz = require("../../admin/model/quiz")
 const userSchema = new mongoose.Schema(
     {
         username: {
@@ -46,7 +46,7 @@ const userSchema = new mongoose.Schema(
         streakCount: { type: Number, default: 0 },
         isBanned: { type: Number, default: 0 },
         deletedBy: { type: mongoose.Schema.Types.ObjectId, ref: "User", default: null },
-        attemptedQuizes: [{ type: mongoose.Schema.Types.ObjectId, ref: "Quiz" }]
+        attemptedQuizes: [{ type: mongoose.Schema.Types.ObjectId, ref: "quiz" }]
     },
     { timestamps: true }
 );

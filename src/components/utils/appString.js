@@ -34,6 +34,7 @@ exports.appString = {
     INVALID_CREDENTIALS: "Invalid Login Credential",
     CHECKVERIFYLOGIN: "Please check your email to verify login.",
     LOGINSUCCESS:"Login Successful",
+    LOGIN_FAILED:"Login Failed",
     LOGOUT_SUCCESS:"Logout Successfully",
     LOGOUT_FAILED:"LogOut Failed",
     USERNOTFOUND:"User Not Found",
@@ -44,5 +45,6 @@ exports.appString = {
     LOGINVERIFICATIONSUCCESSFULL:"Yours Login Verification Succesfull",
     QUIZCOMPLETE: "Quiz completed",
      TIMETAKENREQUIREDFORLAST:"timeTaken required for last question",
-     ANSWERSUBMITTED:"Answer Submitted Successfully"
+     ANSWERSUBMITTED:"Answer Submitted Successfully",
+     ALREDYATTEMPTEDQUESTION:"You already attempted this question"
 };

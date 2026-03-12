@@ -12,7 +12,6 @@ const {initSocket , sendNotificationToUser} = require("../src/components/user/co
 const client = require("../src/components/utils/redisClient")
 const app = express();
 app.set("view engine","ejs");
-console.log(app.get("view engine"));
 app.set("views",path.resolve(__dirname,"../src/views"))
 const server = http.createServer(app);
 initSocket(server)
