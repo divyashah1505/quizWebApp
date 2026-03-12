@@ -1,6 +1,7 @@
 const Question = require("../model/question");
 const { appString } = require("../../utils/appString");
-const Quiz = require("../model/quiz")
+const Quiz = require("../model/quiz");
+const { error, success } = require("../../utils/commonUtils");
 const questionController = {
 
     createQuestion: async (req, res) => {
@@ -8,7 +9,7 @@ const questionController = {
             const { questionText, options, quizId } = req.body;
 
             if (!questionText || !options || !quizId) {
-                return res.status(400).json({
+                return error(res,{
                     success: false,
                     error: "Please provide all the required fields (including quizId)"
                 });
@@ -16,14 +17,14 @@ const questionController = {
 
             const currentQuestionCount = await Question.countDocuments({ quizId });
             if (currentQuestionCount >= 10) {
-                return res.status(400).json({
+                return error(res,{
                     success: false,
                     error: appString.QUIZQUESTIONLIMIT
                 });
             }
 
             if (!Array.isArray(options) || options.length < 4) {
-                return res.status(400).json({
+                return error(res,{
                     success: false,
                     error: appString.OPTIONWITHARRAYLIMITWITH4
                 });
@@ -32,7 +33,7 @@ const questionController = {
             const correctOptionsCount = options.filter(opt => opt.isCorrect === 1).length;
 
             if (correctOptionsCount !== 1) {
-                return res.status(400).json({
+                return error(res,{
                     success: false,
                     error: correctOptionsCount === 0
                         ? appString.ONEOPTIONCORRECT
@@ -42,7 +43,7 @@ const questionController = {
 
             for (const option of options) {
                 if (typeof option.text !== "string" || typeof option.isCorrect !== "number") {
-                    return res.status(400).json({
+                    return success(res,{
                         success: false,
                         error: appString.TEXTASSTRINGISCOORECTASNUMBER
                     });
@@ -59,7 +60,7 @@ const questionController = {
                 $inc: { totalquestion: 1 }
             });
 
-            return res.status(201).json({
+            return success(res,{
                 success: true,
                 message: appString.QUESTIONCREATED,
                 data: newQuestion,
@@ -67,7 +68,7 @@ const questionController = {
 
         } catch (e) {
             console.log("ERROR CREATING QUESTION: ", e);
-            return res.status(500).json({
+            return error(res,{
                 success: false,
                 error: e.message || appString.SERVERERROR
             });
@@ -80,14 +81,14 @@ const questionController = {
             const { id } = req.params;
 
             if (!questionText || !options) {
-                return res.status(400).json({
+                return error(res,{
                     success: false,
                     error: "Please provide question text and options.",
                 });
             }
 
             if (!Array.isArray(options) || options.length < 4) {
-                return res.status(400).json({
+                return error(res,{
                     success: false,
                     error: appString.OPTIONWITHARRAYLIMITWITH4,
                 });
@@ -98,7 +99,7 @@ const questionController = {
                     typeof option.text !== "string" ||
                     typeof option.isCorrect !== "number"
                 ) {
-                    return res.status(400).json({
+                    return error(res,{
                         success: false,
                         error: appString.TEXTASSTRINGISCOORECTASNUMBER,
                     });
@@ -112,20 +113,20 @@ const questionController = {
             );
 
             if (!question) {
-                return res.status(404).json({
+                return error(res,{
                     success: false,
                     error: appString.QUESTIONNOTFOUND,
                 });
             }
 
-            return res.status(200).json({
+            return success(res,{
                 success: true,
                 message: appString.QUESTIONUPDATED,
                 question,
             });
         } catch (e) {
             console.error("ERROR UPDATING QUESTION:", e.message);
-            return res.status(500).json({
+            return error(res,{
                 success: false,
                 error: appString.SERVERERROR,
             });

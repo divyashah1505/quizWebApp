@@ -54,7 +54,7 @@ const adminController = {
             const level = parseInt(req.params.level);
 
             if (isNaN(level)) {
-                return res.status(400).json({
+                return error(res,{
                     success: false,
                     message: appString.INVALIDDIFFICULTYLEVEL
                 });
@@ -66,7 +66,7 @@ const adminController = {
             });
 
             if (!quiz) {
-                return res.status(404).json({
+                return error(res,{
                     success: false,
                     message: appString.QUIZNOTFOUND
                 });
@@ -76,7 +76,7 @@ const adminController = {
                 .select("-options.isCorrect")
                 .limit(10);
 
-            res.status(200).json({
+            return success(res,{
                 success: true,
                 data: {
                     quizId: quiz._id,
@@ -89,7 +89,7 @@ const adminController = {
 
             console.log(error);
 
-            res.status(500).json({
+            return error(res,{
                 success: false,
                 message: appString.SERVERERROR
             });

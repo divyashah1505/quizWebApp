@@ -5,7 +5,7 @@ const QuizAttempt = require("../models/quizAttepmt");
 const User = require('../models/user');
 const Quiz = require('../../admin/model/quiz'); 
 
-const { calculateQuestionPoints, updateUserStreak } = require("../../utils/commonUtils")
+const { calculateQuestionPoints, updateUserStreak, error, success } = require("../../utils/commonUtils")
 const quizController = {
     getQuizByLevel: async (req, res) => {
         try {
@@ -14,7 +14,7 @@ const quizController = {
             const level = parseInt(req.params.level);
 
             if (isNaN(level)) {
-                return res.status(400).json({
+                return error(res,{
                     success: false,
                     message: appString.INVALIDDIFFICULTYLEVEL
                 });
@@ -26,14 +26,11 @@ const quizController = {
             });
 
             if (!quiz) {
-                return res.status(404).json({
-                    success: false,
-                    message: appString.QUIZNOTFOUND
-                });
+                return error(res, appString.QUIZNOTFOUND, 404); 
             }
 
 
-            res.status(200).json({
+            return success(res,{
                 success: true,
                 data: {
                     quizId: quiz._id,
@@ -45,7 +42,7 @@ const quizController = {
 
             console.log(error);
 
-            res.status(500).json({
+            return error(res,{
                 success: false,
                 message: appString.SERVERERROR
             });
@@ -61,7 +58,7 @@ const quizController = {
             const quiz = await Quiz.findById(quizId);
 
             if (!question) {
-                return res.status(404).json({
+                return error(res,{
                     success: false,
                     message: appString.QUESTIONNOTFOUND
                 });
@@ -74,7 +71,7 @@ const quizController = {
             });
 
             if (alreadyAttempted) {
-                return res.status(400).json({
+                return error(res,{
                     success: false,
                     message: appString.ALREDYATTEMPTEDQUESTION
                 });
@@ -87,7 +84,7 @@ const quizController = {
     ).populate('attemptedQuizes'); 
 
     if (!updatedUser) {
-      return res.status(404).json({ success: false, message: 'User not found' });
+      return error(res,{ success: false, message: 'User not found' });
     }
             const correctIndex = question.options.findIndex(
                 (o) => o.isCorrect === 1
@@ -123,7 +120,7 @@ const quizController = {
             if (attempt.answers.length === totalQuestions) {
 
                 if (!timeTaken) {
-                    return res.status(400).json({
+                    return error(res,{
                         success: false,
                         message: appString.TIMETAKENREQUIREDFORLAST
                     });
@@ -158,7 +155,7 @@ const quizController = {
 
                 await attempt.save();
 
-                return res.json({
+                return success(res,{
                     success: true,
                     message: appString.QUIZCOMPLETE,
                     score: attempt.score,
@@ -169,7 +166,7 @@ const quizController = {
                 });
             }
 
-            return res.json({
+            return success(res,{
                 success: true,
                 message: appString.ANSWERSUBMITTED
             });
@@ -178,7 +175,7 @@ const quizController = {
 
             console.log(error);
 
-            res.status(500).json({
+           return error(res,{
                 success: false,
                 message: appString.SERVERERROR
             });

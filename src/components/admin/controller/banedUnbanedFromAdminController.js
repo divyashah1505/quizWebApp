@@ -1,5 +1,6 @@
 const User = require("../../user/models/user");
 const appString = require("../../utils/appString");
+const { error, success } = require("../../utils/commonUtils");
 
 const banedUnbanedFromAdminController = {
 
@@ -13,7 +14,7 @@ banUnbanUser: async (req, res) => {
         const user = await User.findById(userId);
 
         if (!user) {
-            return res.status(404).json({
+            return error(res,{
                 success: false,
                 message: appString.USERNOTFOUND
             });
@@ -23,7 +24,7 @@ banUnbanUser: async (req, res) => {
 
         await user.save();
 
-        return res.json({
+        return success(res,{
             success: true,
             message: isBanned ? appString.USERBANNEDSUCCESS : appString.USERUNBANEDNOTSUCCESS,
             user
@@ -33,7 +34,7 @@ banUnbanUser: async (req, res) => {
 
         console.log(error);
 
-        return res.status(500).json({
+        return error(res,{
             success: false,
             message: appString.SERVERERROR
         });

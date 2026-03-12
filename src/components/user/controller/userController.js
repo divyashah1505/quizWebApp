@@ -17,7 +17,7 @@ const userController = {
             const { username, email, mobile, password, file } = req.body;
             const userExists = await User.findOne({ email });
             if (userExists) {
-                return res.status(400).json({ success: false, message: appString.EMAILALREDYREGISTERED });
+                return success({ success: false, message: appString.EMAILALREDYREGISTERED });
             }
             const hashedPassword = await bcrypt.hash(password, 10);
             const token = crypto.randomBytes(32).toString('hex');
@@ -30,10 +30,10 @@ const userController = {
             await sendEmail(email, 'Verify Your Email', html);
 
 
-            return res.status(200).json({ success: true, message: appString.USERREGISTRATIONSUCCESSFULL });
+            return success(res,{ success: true, message: appString.USERREGISTRATIONSUCCESSFULL });
         } catch (error) {
             console.log(error);
-            return res.status(500).json({ success: false, message: appString.SERVERERROR });
+            return error(res,{ success: false, message: appString.SERVERERROR });
         }
     },
 
@@ -194,11 +194,11 @@ const userController = {
 
             const userList = await User.find({}).sort({ score: -1 }).exec();
 
-            return res.status(200).json({ success: true, users: userList });
+            return success(res,{ success: true, users: userList });
 
         } catch (err) {
             console.error(err);
-            return error(res, appString.SOMETHINGWENTWRONG, 500);
+            return error(res, appString.SERVERERROR, 500);
         }
     }
 

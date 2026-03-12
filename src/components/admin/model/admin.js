@@ -2,40 +2,35 @@ const mongoose = require("mongoose");
 const bcrypt = require("bcryptjs");
 const { appString } = require("../../utils/appString");
 
-const adminSchema = new mongoose.Schema(
-  {
-    username: {
-      type: String,
-      unique: true,
-      required: [true, appString.USERNAME_REQUIRED],
-      trim: true,
-      minlength: [4, appString.LONG],
-      maxlength: [20, appString.LIMIT],
-    },
-    email: {
-      type: String,
-      unique: true,
-      required: [true, appString.EMAIL_REQUIRED],
-      trim: true,
-      lowercase: true,
-      match: [/.+@.+\..+/, "Please enter a valid email address"],
-    },
-    password: {
-      type: String,
-      required: [true, "Password is required"],
-      minlength: [8, "Password must be at least 8 characters long"],
-    },
-    adminFeeConfigure:{
-        type:Number
-    },
+const { validation } = require('../validation'); 
 
-    deletedAt: {
-      type: Date,
-      default: null,
-    },
+const adminSchema = new mongoose.Schema({
+  username: {
+    type: String,
+    unique: true,
+    required: validation.required(appString.USERNAME_REQUIRED), 
+    trim: true,
+    ...validation.minLength(4), 
+    ...validation.maxLength(20), 
   },
-  { timestamps: true },
-);
+  email: {
+    type: String,
+    unique: true,
+    required: validation.required(appString.EMAIL_REQUIRED),
+    ...validation.email, 
+  },
+  password: {
+    type: String,
+    ...validation.password, 
+  },
+  adminFeeConfigure: {
+    type: Number
+  },
+  deletedAt: {
+    type: Date,
+    default: null,
+  },
+}, { timestamps: true });
 
 adminSchema.pre("save", async function () {
   if (this.isModified("password")) {

@@ -10,13 +10,13 @@ const withdrawController = {
             const { points } = req.body;
             const User = await user.findById(userId);
             if (!user) {
-                return res.status(404).json({
+                return error(res,{
                     success: false,
                     message: appString.USERNOTFOUND
                 })
             }
             if (points > user.totalPoints) {
-                return res.status(404).json({
+                return error(res,{
                     success: false,
                     message: appString.INSUFFICIANTPOINTS
                 })
@@ -28,7 +28,7 @@ const withdrawController = {
             });
             User.totalPoints -= points
             await User.save();
-            res.json({
+            return success(res,{
                 success: true,
                 message: appString.WITHDRAWREQUESTSUBMITED
             })
@@ -36,7 +36,7 @@ const withdrawController = {
         } catch (error) {
             console.log(("this is eror", error));
 
-            res.status(500).json({
+            return error(res,{
                 success: false,
                 message: appString.SERVERERROR
             });

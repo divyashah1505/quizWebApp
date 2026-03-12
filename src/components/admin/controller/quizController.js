@@ -1,4 +1,5 @@
 const { appString } = require("../../utils/appString");
+const { error, success } = require("../../utils/commonUtils");
 const Admin = require("../model/admin");
 
 const Quiz = require("../model/quiz");
@@ -15,14 +16,14 @@ const quizController = {
                 categoryId,
             });
 
-            return res.status(201).json({
+            return success(res,{
                 success: true,
                 message: appString.QUIZCREATEDSUCCESS,
                 data: quiz,
             });
         } catch (e) {
             console.log("ERROR CREATING QUIZ: ", e);
-            return res.status(500).json({
+            return error(res,{
                 success: false,
                 error: appString.SERVERERROR,
             });
@@ -33,9 +34,7 @@ const quizController = {
             const { title, description, difficultyLevel, categoryId } = req.body;
             const quiz = await Quiz.findById(req.params.id);
             if (!quiz) {
-                return res
-                    .status(404)
-                    .json({ success: false, message: appString.QUIZNOTFOUND });
+                return error(res,{ success: false, message: appString.QUIZNOTFOUND });
             }
 
             quiz.title = title;
@@ -46,14 +45,14 @@ const quizController = {
 
             await quiz.save();
 
-            return res.status(200).json({
+            return success(res,{
                 success: true,
                 message: appString.QUIZUPDATED,
                 data: quiz,
             });
         } catch (e) {
             console.log("ERROR UPDATING QUIZ : ", e);
-            return res.status(500).json({
+            return error(res,{
                 success: false,
                 error: appString.SERVERERROR,
             });

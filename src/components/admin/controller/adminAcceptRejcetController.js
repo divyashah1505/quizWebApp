@@ -1,7 +1,7 @@
 const withDrawRequest = require("../../user/models/withDrawRequest");
 const withdrawalRequest = require("../../user/models/withDrawRequest");
 const { appString } = require("../../utils/appString");
-const { success } = require("../../utils/commonUtils");
+const { success ,error} = require("../../utils/commonUtils");
 const WithdrawRequest = require("../../user/models/withDrawRequest");
 const User = require("../../user/models/user")
 const Wallet = require("../../user/models/wallet")
@@ -12,13 +12,13 @@ const withDrawAcceptRejcectController = {
             const requests = await withDrawRequest.find()
                 .populate("userId", "name email")
 
-            res.json({ success: true, data: requests })
+            return success(res,{ success: true, data: requests })
 
         } catch (error) {
 
             console.log(error);
 
-            res.status(500).json({ success: false, message: appString.SERVERERROR })
+           return error(res,{ success: false, message: appString.SERVERERROR })
 
         }
     },
@@ -32,14 +32,14 @@ const withDrawAcceptRejcectController = {
             const request = await WithdrawRequest.findById(requestId);
 
             if (!request) {
-                return res.status(404).json({
+                return error(res,{
                     success: false,
                     message: appString.REQUESTNOTFOUND
                 });
             }
 
             if (request.status !== 0) {
-                return res.status(400).json({
+                return error(res,{
                     success: false,
                     message: appString.REQUESTALREDYPROCEED
                 });
@@ -52,7 +52,7 @@ const withDrawAcceptRejcectController = {
 
                 await request.save();
 
-                return res.json({
+                return success(res,{
                     success: true,
                     message: appString.WITHDRAWREQUESTREJECTED
                 });
@@ -64,7 +64,7 @@ const withDrawAcceptRejcectController = {
                 const points = Number(request.points);
 
                 if (!points || points <= 0) {
-                    return res.status(400).json({
+                    return error(res,{
                         success: false,
                         message: appString.INSUFFICIANTPOINTS
                     });
@@ -103,7 +103,7 @@ const withDrawAcceptRejcectController = {
 
                 await request.save();
 
-                return res.json({
+                return success(res,{
                     success: true,
                     message: appString.WITHDRAWAPPROVED,
                     points,
@@ -113,7 +113,7 @@ const withDrawAcceptRejcectController = {
                 });
             }
 
-            return res.status(400).json({
+            return success(res,{
                 success: false,
                 message: appString.INVALIDSTATUSVALUE
             });
@@ -122,7 +122,7 @@ const withDrawAcceptRejcectController = {
 
             console.log(error);
 
-            res.status(500).json({
+            return error(res,{
                 success: false,
                 message: appString.SERVERERROR
             });

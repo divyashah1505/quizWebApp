@@ -127,12 +127,12 @@ const quizMangmentController = {
         new: 1,
       });
 
-      if (!updated) return err(res, appString.PARENTCATEGORY, 404);
+      if (!updated) return error(res, appString.PARENTCATEGORY, 404);
 
       const type = updated.categoryId ? "Subcategory" : "Category";
       return success(res, updated, `${type} updated successfully`);
     } catch (error) {
-      return err(res, error.message, 400);
+      return error(res, error.message, 400);
     }
   },
   deleteCategory: async (req, res) => {
@@ -140,7 +140,7 @@ const quizMangmentController = {
       const { id } = req.params;
 
       const category = await Category.findById(id);
-      if (!category) return err(res, appString.PARENTCATEGORY, 404);
+      if (!category) return error(res, appString.PARENTCATEGORY, 404);
 
       const type = category.categoryId ? "Subcategory" : "Category";
 
@@ -156,7 +156,7 @@ const quizMangmentController = {
 
       return success(res, null, `${type} deleted Successfully`);
     } catch (error) {
-      return err(res, error.message, 400);
+      return error(res, error.message, 400);
     }
   },
   reactivateCategory: async (req, res) => {
@@ -175,7 +175,7 @@ const quizMangmentController = {
 
       return success(res, null, `${type} reactivated successfully`);
     } catch (error) {
-      return err(res, error.message, 400);
+      return error(res, error.message, 400);
     }
   },
 };

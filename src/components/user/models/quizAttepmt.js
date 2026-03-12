@@ -29,7 +29,6 @@ const quizAttemptSchema = new mongoose.Schema({
 
             isCorrect: {
                 type: Number, // 1 = correct, 0 = incorrect
-                enum: [0, 1],
                 default: 0
             }
         }
@@ -41,8 +40,7 @@ const quizAttemptSchema = new mongoose.Schema({
     },
 
     timeTaken: {
-        type: Number, // seconds
-        // required: true
+        type: Number,
     }
 
 }, { timestamps: true });

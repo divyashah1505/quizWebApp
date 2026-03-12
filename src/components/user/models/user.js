@@ -1,7 +1,9 @@
 const mongoose = require("mongoose");
 const bcrypt = require("bcryptjs");
 const { appString } = require("../../utils/appString");
-const Quiz = require("../../admin/model/quiz")
+const Quiz = require("../../admin/model/quiz");
+const { validation } = require('../../admin/validation');
+
 const userSchema = new mongoose.Schema(
     {
         username: {
@@ -9,8 +11,8 @@ const userSchema = new mongoose.Schema(
             unique: true,
             required: [true, appString.USERNAME_REQUIRED],
             trim: true,
-            minlength: [6, "Username must be at least 6 characters long"],
-            maxlength: [20, appString.LIMIT],
+            ...validation.minLength(4),
+            ...validation.maxLength(20),
         },
         email: {
             type: String,
@@ -18,7 +20,8 @@ const userSchema = new mongoose.Schema(
             sparse: true,
             trim: true,
             lowercase: true,
-            match: [/.+@.+..+/, "Please enter a valid email address"],
+            required: validation.required(appString.EMAIL_REQUIRED),
+            ...validation.email,
         },
         mobile: {
             type: String,
@@ -28,19 +31,19 @@ const userSchema = new mongoose.Schema(
         },
         password: {
             type: String,
-            required: [true, "Password is required"],
-            minlength: [8, "Password must be at least 8 characters long"],
+            ...validation.password
+            ,
         },
         file: { type: String },
         status: { type: Number, enum: [0, 1], default: 1 },
         isVerifiedByEmail: { type: Number, enum: [0, 1], default: 0 },
-        loginVerifyToken: { 
+        loginVerifyToken: {
             type: String,
-            default:null
-         },
-         isLoginVeried:{
-            type :Number, //1 for verified 0 for unverified
-            default:0
+            default: null
+        },
+        isLoginVeried: {
+            type: Number, //1 for verified 0 for unverified
+            default: 0
         },
         totalPoints: { type: Number, default: 0 },
         streakCount: { type: Number, default: 0 },
